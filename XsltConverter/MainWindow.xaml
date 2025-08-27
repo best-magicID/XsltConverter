@@ -6,9 +6,11 @@
         xmlns:local="clr-namespace:XsltConverter"
         
         mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         Title="Xslt конвертер" 
         Height="450" 
-        Width="400">
+        Width="400" 
+        WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
         <Style TargetType="Button">
@@ -35,7 +37,8 @@
                     Grid.Column="0"
                     Grid.RowSpan="2"
                     HorizontalAlignment="Left">
-            <Button Content="Выбрать файл"/>
+            <Button Content="Выбрать файл"
+                    Command="{Binding SelectFileCommand}"/>
 
             <Button Content="Обработать файл"/>
             
