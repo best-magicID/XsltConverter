@@ -1,6 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using System.Xml;
@@ -11,11 +13,12 @@ namespace XsltConverter
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         #region ПОЛЯ И СВОЙСТВА
 
         public ObservableCollection<Employee> ListEmployees { get; set; } = [];
+        public 
 
         public RaiseCommand? SelectFileCommand { get; set; }
 
@@ -35,6 +38,16 @@ namespace XsltConverter
 
         #endregion
 
+
+        #region ОБНОВЛЕНИЕ UI
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
 
         #region МЕТОДЫ
 
@@ -70,6 +83,8 @@ namespace XsltConverter
 
         public void OpenXmlFile(string nameFile)
         {
+            ListEmployees.Clear();
+
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(nameFile);
 
@@ -80,16 +95,21 @@ namespace XsltConverter
                 foreach (XmlElement node in RootObject)
                 {
                     XmlNode? name = node.Attributes.GetNamedItem(nameof(name));
+                    string nameString = name != null ? name.Value : string.Empty;
+
                     XmlNode? surname = node.Attributes.GetNamedItem(nameof(surname));
+                    string surnameString = surname != null ? surname.Value : string.Empty;
+
                     XmlNode? amount = node.Attributes.GetNamedItem(nameof(amount));
+                    var amountDouble = double.TryParse(amount?.Value, out double result) ? result : 0;
+
                     XmlNode? mount = node.Attributes.GetNamedItem(nameof(mount));
+                    string mountString = mount != null ? mount.Value : string.Empty;
 
-
-                    Employee employee = new Employee(newName: name == null ? string.Empty : name.Value,
-                                                     newSurName: string.Empty,
-                                                     newAmount: 0,
-                                                     newMount: string.Empty);
-
+                    Employee employee = new Employee(newName: nameString,
+                                                     newSurName: surnameString,
+                                                     newAmount: amountDouble,
+                                                     newMount: mountString);
 
                     ListEmployees.Add(employee);
                 }
