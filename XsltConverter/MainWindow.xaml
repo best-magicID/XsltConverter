@@ -40,14 +40,21 @@
             <Button Content="Выбрать файл"
                     Command="{Binding SelectFileCommand}"/>
 
-            <Button Content="Обработать файл"/>
+            <Button Content="Обработать файл"
+                    Command="{Binding OpenFileCommand}"/>
             
         </StackPanel>
 
-        <TextBox Text="Информация"
-                 Grid.Row="0"
-                 Grid.Column="1"
-                 Margin="5 0 0 0"/>
+        <StackPanel Orientation="Horizontal" 
+                    Grid.Row="0"
+                    Grid.Column="1">
+            
+            <TextBlock Text="Информация "
+                       Margin="5 0 0 0"/>
+
+            <TextBlock Text="{Binding NameFile}"/>
+
+        </StackPanel>
 
         <DataGrid Grid.Row="1"
                   Grid.Column="1"

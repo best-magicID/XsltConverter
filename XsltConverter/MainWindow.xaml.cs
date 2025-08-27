@@ -1,15 +1,30 @@
 ﻿using Microsoft.Win32;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Input;
 using System.Xml;
 using XsltConverter.Classes;
 
 namespace XsltConverter
 {
+    public enum Month
+    {
+        January = 1,
+        February = 2,
+        March = 3,
+        April = 4,
+        May = 5,
+        June = 6,
+        July = 7,
+        August = 8,
+        September = 9,
+        October = 10,
+        November = 11,
+        December = 12,
+        Unknown = 13,
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -17,15 +32,45 @@ namespace XsltConverter
     {
         #region ПОЛЯ И СВОЙСТВА
 
-        public ObservableCollection<Employee> ListEmployees { get; set; } = [];
-        public 
+        /// <summary>
+        /// Лист сотрудников
+        /// </summary>
+        public ObservableCollection<Employee> ListAllEmployees { get; set; } = [];
+
+        /// <summary>
+        /// Словарь месяцев
+        /// </summary>
+        public Dictionary<Month, ObservableCollection<Employee>> DictionaryMonths = [];
+
+        /// <summary>
+        /// Выбранный файл (путь, название, формат)
+        /// </summary>
+        public string? PathAndNameFile { get; set; }
+
+        /// <summary>
+        /// Имя и расширение файла
+        /// </summary>
+        public string? NameFile
+        {
+            get => _NameFile;
+            set
+            {
+                _NameFile = value;
+                OnPropertyChanged();
+            }
+        }
+        private string? _NameFile = string.Empty;
+
+        #region КОМАНДЫ
 
         public RaiseCommand? SelectFileCommand { get; set; }
+        public RaiseCommand? OpenFileCommand { get; set; }
 
         #endregion
 
+        #endregion
 
-        #region Конструктор
+        #region КОНСТРУКТОР
 
         public MainWindow()
         {
@@ -57,6 +102,7 @@ namespace XsltConverter
         public void LoadCommands()
         {
             SelectFileCommand = new RaiseCommand(SelectFileCommand_Execute);
+            OpenFileCommand = new RaiseCommand(OpenFileCommand_Execute, OpenFileCommand_CanExecute);
         }
 
         /// <summary>
@@ -65,28 +111,33 @@ namespace XsltConverter
         /// <param name="parameter"></param>
         private void SelectFileCommand_Execute(object parameter)
         {
-            var nameFile = SelectFile();
-            OpenXmlFile(nameFile);
+            SelectFile();
+            OpenXmlFile();
         }
 
         /// <summary>
         /// Выбор файла
         /// </summary>
         /// <returns>Путь с названием файла и его расширением</returns>
-        public string SelectFile()
+        public void SelectFile()
         {
             OpenFileDialog openFileDialog = new();
             openFileDialog.ShowDialog();
 
-            return openFileDialog.FileName;
+            NameFile = openFileDialog.SafeFileName;
+
+            PathAndNameFile = openFileDialog.FileName;
         }
 
-        public void OpenXmlFile(string nameFile)
+        /// <summary>
+        /// Открыть и прочитать XML файл
+        /// </summary>
+        public void OpenXmlFile()
         {
-            ListEmployees.Clear();
+            ListAllEmployees.Clear();
 
             XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(nameFile);
+            xmlDocument.Load(PathAndNameFile!);
 
             XmlElement? RootObject = xmlDocument.DocumentElement;
 
@@ -95,25 +146,45 @@ namespace XsltConverter
                 foreach (XmlElement node in RootObject)
                 {
                     XmlNode? name = node.Attributes.GetNamedItem(nameof(name));
-                    string nameString = name != null ? name.Value : string.Empty;
+                    string nameString = name?.Value ?? string.Empty;
 
                     XmlNode? surname = node.Attributes.GetNamedItem(nameof(surname));
-                    string surnameString = surname != null ? surname.Value : string.Empty;
+                    string surnameString = surname?.Value ?? string.Empty;
 
                     XmlNode? amount = node.Attributes.GetNamedItem(nameof(amount));
-                    var amountDouble = double.TryParse(amount?.Value, out double result) ? result : 0;
+                    var amountDouble = double.TryParse(amount?.Value, out double outAmount) ? outAmount : 0;
 
                     XmlNode? mount = node.Attributes.GetNamedItem(nameof(mount));
-                    string mountString = mount != null ? mount.Value : string.Empty;
+                    string mountString = mount?.Value ?? string.Empty;
+                    Month mountEnum = Enum.TryParse(mountString, out Month outMount) ? outMount : Month.Unknown;
 
                     Employee employee = new Employee(newName: nameString,
                                                      newSurName: surnameString,
                                                      newAmount: amountDouble,
-                                                     newMount: mountString);
+                                                     newMount: mountEnum);
 
-                    ListEmployees.Add(employee);
+                    ListAllEmployees.Add(employee);
                 }
             }
+        }
+
+        /// <summary>
+        /// Выполнить команду "открыть файл"
+        /// </summary>
+        /// <param name="parameter"></param>
+        private void OpenFileCommand_Execute(object parameter)
+        {
+            OpenXmlFile();
+        }
+
+        /// <summary>
+        /// Проверка команды "Открыть файл"
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        private bool OpenFileCommand_CanExecute(object parameter)
+        {
+            return !string.IsNullOrEmpty(PathAndNameFile);
         }
 
         #endregion
