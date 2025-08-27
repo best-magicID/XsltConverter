@@ -1,0 +1,53 @@
+﻿<Window x:Class="XsltConverter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XsltConverter"
+        
+        mc:Ignorable="d"
+        Title="Xslt конвертер" 
+        Height="450" 
+        Width="400">
+
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Margin"
+                    Value="0 0 0 2.5"/>
+            <Setter Property="Padding"
+                    Value="3"/>
+        </Style>
+        
+    </Window.Resources>
+    
+    <Grid Margin="5">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.RowSpan="2"
+                    HorizontalAlignment="Left">
+            <Button Content="Выбрать файл"/>
+
+            <Button Content="Обработать файл"/>
+            
+        </StackPanel>
+
+        <TextBox Text="Информация"
+                 Grid.Row="0"
+                 Grid.Column="1"
+                 Margin="5 0 0 0"/>
+
+        <DataGrid Grid.Row="1"
+                  Grid.Column="1"
+                  Margin="5 0 0 0"/>
+    </Grid>
+</Window>
