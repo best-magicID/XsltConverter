@@ -59,6 +59,6 @@
         <DataGrid Grid.Row="1"
                   Grid.Column="1"
                   Margin="5 0 0 0"
-                  ItemsSource="{Binding ListEmployees}"/>
+                  ItemsSource="{Binding ListAllEmployees}"/>
     </Grid>
 </Window>

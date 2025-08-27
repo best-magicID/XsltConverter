@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Xml;
@@ -10,23 +11,23 @@ namespace XsltConverter
 {
     public enum Month
     {
-        January = 1,
-        February = 2,
-        March = 3,
-        April = 4,
-        May = 5,
-        June = 6,
-        July = 7,
-        August = 8,
-        September = 9,
-        October = 10,
-        November = 11,
-        December = 12,
-        Unknown = 13,
+        january = 1,
+        february = 2,
+        march = 3,
+        april = 4,
+        may = 5,
+        june = 6,
+        july = 7,
+        august = 8,
+        september = 9,
+        october = 10,
+        november = 11,
+        december = 12,
+        unknown = 13,
     }
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Логика для главного окна
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
@@ -41,6 +42,8 @@ namespace XsltConverter
         /// Словарь месяцев
         /// </summary>
         public Dictionary<Month, ObservableCollection<Employee>> DictionaryMonths = [];
+
+        public List<Month> ListMonths { get; set; } = new List<Month>();
 
         /// <summary>
         /// Выбранный файл (путь, название, формат)
@@ -78,6 +81,8 @@ namespace XsltConverter
 
             LoadCommands();
 
+            ListMonths = Enum.GetValues(typeof(Month)).Cast<Month>().ToList();
+
             DataContext = this;
         }
 
@@ -111,8 +116,17 @@ namespace XsltConverter
         /// <param name="parameter"></param>
         private void SelectFileCommand_Execute(object parameter)
         {
-            SelectFile();
-            OpenXmlFile();
+            try
+            {
+                SelectFile();
+                ReadXmlFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка:" + ex.ToString(), 
+                                "Внимание",
+                                MessageBoxButton.OK);
+            }
         }
 
         /// <summary>
@@ -132,7 +146,7 @@ namespace XsltConverter
         /// <summary>
         /// Открыть и прочитать XML файл
         /// </summary>
-        public void OpenXmlFile()
+        public void ReadXmlFile()
         {
             ListAllEmployees.Clear();
 
@@ -145,27 +159,54 @@ namespace XsltConverter
             {
                 foreach (XmlElement node in RootObject)
                 {
-                    XmlNode? name = node.Attributes.GetNamedItem(nameof(name));
-                    string nameString = name?.Value ?? string.Empty;
+                    var temp = Enum.TryParse(node.Name.ToLower(), out Month outMount0) ? outMount0 : Month.unknown;
 
-                    XmlNode? surname = node.Attributes.GetNamedItem(nameof(surname));
-                    string surnameString = surname?.Value ?? string.Empty;
+                    if (ListMonths.Contains(temp))
+                    {
+                        foreach (XmlNode childNode in node.ChildNodes)
+                        {
+                            AddInListEmployees(xmlNode: childNode);
+                        }
+                    }
 
-                    XmlNode? amount = node.Attributes.GetNamedItem(nameof(amount));
-                    var amountDouble = double.TryParse(amount?.Value, out double outAmount) ? outAmount : 0;
-
-                    XmlNode? mount = node.Attributes.GetNamedItem(nameof(mount));
-                    string mountString = mount?.Value ?? string.Empty;
-                    Month mountEnum = Enum.TryParse(mountString, out Month outMount) ? outMount : Month.Unknown;
-
-                    Employee employee = new Employee(newName: nameString,
-                                                     newSurName: surnameString,
-                                                     newAmount: amountDouble,
-                                                     newMount: mountEnum);
-
-                    ListAllEmployees.Add(employee);
+                    AddInListEmployees(xmlElement: node);
                 }
             }
+        }
+
+        /// <summary>
+        /// Добавление сотрудников в список
+        /// </summary>
+        /// <param name="xmlElement"></param>
+        /// <param name="xmlNode"></param>
+        public void AddInListEmployees(XmlElement? xmlElement = null, XmlNode? xmlNode = null)
+        {
+            var node = xmlElement ?? xmlNode;
+            if (node == null || node?.Attributes?.Count < 1)
+            {
+                return;
+            }
+
+            XmlNode? name = node.Attributes.GetNamedItem(nameof(name));
+            string nameString = name?.Value ?? string.Empty;
+
+            XmlNode? surname = node.Attributes.GetNamedItem(nameof(surname));
+            string surnameString = surname?.Value ?? string.Empty;
+
+            XmlNode? amount = node.Attributes.GetNamedItem(nameof(amount));
+            var tempAmount = amount?.Value?.ToString().Replace('.', ',');
+            var amountDouble = double.TryParse(tempAmount, out double outAmount) ? outAmount : 0;
+
+            XmlNode? mount = node.Attributes.GetNamedItem(nameof(mount));
+            string mountString = mount?.Value ?? string.Empty;
+            Month mountEnum = Enum.TryParse(mountString.ToLower(), out Month outMount) ? outMount : Month.unknown;
+
+            Employee employee = new Employee(newName: nameString,
+                                             newSurName: surnameString,
+                                             newAmount: amountDouble,
+                                             newMount: mountEnum);
+
+            ListAllEmployees.Add(employee);
         }
 
         /// <summary>
@@ -174,7 +215,16 @@ namespace XsltConverter
         /// <param name="parameter"></param>
         private void OpenFileCommand_Execute(object parameter)
         {
-            OpenXmlFile();
+            try
+            {
+                ReadXmlFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка:" + ex.ToString(),
+                                "Внимание",
+                                MessageBoxButton.OK);
+            }
         }
 
         /// <summary>
@@ -186,6 +236,8 @@ namespace XsltConverter
         {
             return !string.IsNullOrEmpty(PathAndNameFile);
         }
+
+
 
         #endregion
     }

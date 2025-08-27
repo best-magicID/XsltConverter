@@ -16,7 +16,7 @@ namespace XsltConverter.Classes
             CanExecuteDelegate = canExecuteCommand;
         }
 
-        public bool CanExecute(object? parameter)
+        public bool CanExecute(object parameter)
         {
             if (CanExecuteDelegate != null)
                 return CanExecuteDelegate(parameter);
@@ -30,7 +30,7 @@ namespace XsltConverter.Classes
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public void Execute(object? parameter)
+        public void Execute(object parameter)
         {
             ExecuteDelegate?.Invoke(parameter);
         }
