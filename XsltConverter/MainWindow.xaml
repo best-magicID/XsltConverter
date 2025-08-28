@@ -152,6 +152,12 @@
                                         Width="*" 
                                         IsReadOnly="True"/>
 
+                    <DataGridTextColumn Header="Год" 
+                                        Binding="{Binding Path=AmountForYear}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+
                 </DataGrid.Columns>
             </DataGrid>
         </DockPanel>

@@ -164,10 +164,15 @@ namespace XsltConverter
         /// </summary>
         public void ReadXmlFile()
         {
+            if(string.IsNullOrEmpty(PathAndNameFile))
+            {
+                return;
+            }    
+
             ListAllEmployees.Clear();
 
             XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(PathAndNameFile!);
+            xmlDocument.Load(PathAndNameFile);
 
             XmlElement? RootObject = xmlDocument.DocumentElement;
 
@@ -232,6 +237,7 @@ namespace XsltConverter
         {
             ListEmployeesInfoForYear.Clear();
 
+            // Получение списка сотрудников без дубликатов
             foreach (var employee in ListAllEmployees)
             {
                 if(!ListEmployeesInfoForYear.Any(x => x.Name == employee.Name && x.SurName == employee.SurName))
@@ -241,6 +247,7 @@ namespace XsltConverter
                 }
             }
 
+            // Заполнение данных о сотруднике
             foreach (Employee employee in ListAllEmployees)
             {
                 foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
@@ -250,6 +257,12 @@ namespace XsltConverter
                         AddInListEmployeesInfoForYear(employee, employeeInfoForYear);
                     }
                 }
+            }
+
+            // Подсчет годовой суммы
+            foreach(var employeeInfoForYear in ListEmployeesInfoForYear)
+            {
+                employeeInfoForYear.AmountForYear = employeeInfoForYear.GetAllAmount();
             }
         }
 
@@ -330,7 +343,7 @@ namespace XsltConverter
         }
 
         /// <summary>
-        /// Выполнить команду "открыть файл"
+        /// Выполнить команду "Открыть файл"
         /// </summary>
         /// <param name="parameter"></param>
         private void OpenFileCommand_Execute(object parameter)
@@ -358,6 +371,10 @@ namespace XsltConverter
             return !string.IsNullOrEmpty(PathAndNameFile);
         }
 
+        /// <summary>
+        /// Выполнить команду "Сохранить файл"
+        /// </summary>
+        /// <param name="parameter"></param>
         private void SaveFileCommand_Execute(Object parameter)
         {
             try
@@ -372,6 +389,9 @@ namespace XsltConverter
             }
         }
 
+        /// <summary>
+        /// Сохранение Xml файла
+        /// </summary>
         public void SaveFile()
         {
             SaveFileDialog saveFileDialog = new();
@@ -392,10 +412,14 @@ namespace XsltConverter
             {
                 XElement employeeElement = new XElement(nameof(Employee)); // Сотрудник
 
-                XAttribute nameAttr = new XAttribute("name", employeeInfoForYear.Name);
-                employeeElement.Add(nameAttr); // Атрибут сотрудника
+                XAttribute nameAttr = new XAttribute("name", employeeInfoForYear.Name); // Атрибут сотрудника
+                employeeElement.Add(nameAttr); 
+
                 XAttribute surNameAttr = new XAttribute("surname", employeeInfoForYear.SurName);
                 employeeElement.Add(surNameAttr);
+
+                XAttribute allAmountAttr = new XAttribute("allamount", employeeInfoForYear.GetAllAmount());
+                employeeElement.Add(allAmountAttr);
 
                 foreach (var listForMonth in employeeInfoForYear.GetListCollections())
                 {

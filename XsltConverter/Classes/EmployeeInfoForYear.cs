@@ -50,6 +50,8 @@ namespace XsltConverter.Classes
         public double AmountForUnknown { get; set; }
         public ObservableCollection<Employee> ListForUnknown { get; set; } = [];
 
+        public double AmountForYear { get; set; }
+
 
         public EmployeeInfoForYear(string newName, string newSurName)
         {
@@ -68,6 +70,10 @@ namespace XsltConverter.Classes
 
         #endregion
 
+        /// <summary>
+        /// Получение списка со всеми месяцами сотрудника
+        /// </summary>
+        /// <returns></returns>
         public List<ObservableCollection<Employee>> GetListCollections()
         {
             var list = new List<ObservableCollection<Employee>>();
@@ -86,5 +92,26 @@ namespace XsltConverter.Classes
             return list;
         }
         
+        /// <summary>
+        /// Получение всей суммы сотрудника
+        /// </summary>
+        /// <returns></returns>
+        public double GetAllAmount()
+        {
+            double allAmount = AmountForJanuary +
+                               AmountForFebruary +
+                               AmountForMarch +
+                               AmountForApril +
+                               AmountForMay +
+                               AmountForJune +
+                               AmountForJuly +
+                               AmountForAugust +
+                               AmountForSeptember +
+                               AmountForOctober +
+                               AmountForDecember;
+
+            return Math.Round(allAmount, 2);
+        }
+
     }
 }
