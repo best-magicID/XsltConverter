@@ -1,9 +1,14 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 using System.Xml;
+using System.Xml.Linq;
 using XsltConverter.Classes;
 
 namespace XsltConverter
@@ -45,7 +50,7 @@ namespace XsltConverter
         /// <summary>
         /// Список месяцев
         /// </summary>
-        public List<Month> ListMonths { get; set; } = new List<Month>();
+        public List<Month> ListMonths { get; set; } = [];
 
         /// <summary>
         /// Выбранный файл (путь, название, формат)
@@ -70,6 +75,7 @@ namespace XsltConverter
 
         public RaiseCommand? SelectFileCommand { get; set; }
         public RaiseCommand? OpenFileCommand { get; set; }
+        public RaiseCommand? SaveFileCommand { get; set; }
 
         #endregion
 
@@ -110,6 +116,7 @@ namespace XsltConverter
         {
             SelectFileCommand = new RaiseCommand(SelectFileCommand_Execute);
             OpenFileCommand = new RaiseCommand(OpenFileCommand_Execute, OpenFileCommand_CanExecute);
+            SaveFileCommand = new RaiseCommand(SaveFileCommand_Execute, OpenFileCommand_CanExecute);
         }
 
         /// <summary>
@@ -345,7 +352,66 @@ namespace XsltConverter
             return !string.IsNullOrEmpty(PathAndNameFile);
         }
 
+        private void SaveFileCommand_Execute(Object parameter)
+        {
+            try
+            {
+                SaveFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка:" + ex.ToString(),
+                                "Внимание",
+                                MessageBoxButton.OK);
+            }
+        }
 
+        public void SaveFile()
+        {
+            XDocument xmlDocument = new XDocument();
+            
+            XElement Employees = new XElement("Employees"); // Корневой элемент
+
+            foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
+            {
+                XElement employee = new XElement(nameof(Employee)); // Сотрудник
+
+                XAttribute nameAttr = new XAttribute("name", employeeInfoForYear.Name);
+                employee.Add(nameAttr); // Атрибут сотрудника
+                XAttribute surNameAttr = new XAttribute("surname", employeeInfoForYear.SurName);
+                employee.Add(surNameAttr);
+
+                foreach (var listForMonth in employeeInfoForYear.GetListCollections())
+                {
+                    foreach (var item in listForMonth)
+                    {
+                        XElement salaryElement = new XElement("salary");
+
+                        XAttribute amountAttr = new XAttribute("amount", item.Amount);
+                        salaryElement.Add(amountAttr);
+
+                        XAttribute mountAttr = new XAttribute("mount", item.Mount);
+                        salaryElement.Add(mountAttr);
+
+                        employee.Add(salaryElement);
+                    }
+                }
+                Employees.Add(employee);
+            }
+            xmlDocument.Add(Employees);
+
+            SaveFileDialog saveFileDialog = new();
+            saveFileDialog.ShowDialog();
+            //xmlDocument.Save(saveFileDialog.FileName + ".xml");
+
+            using (XmlTextWriter xmlTextWriter = new XmlTextWriter(saveFileDialog.FileName + ".xml", Encoding.UTF8))
+            {
+                xmlTextWriter.Formatting = Formatting.Indented;
+                xmlTextWriter.IndentChar = '\t';
+                xmlTextWriter.Indentation = 1;
+                xmlDocument.WriteTo(xmlTextWriter);
+            }
+        }
 
         #endregion
     }

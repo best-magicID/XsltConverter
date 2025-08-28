@@ -44,7 +44,10 @@
 
             <Button Content="Обработать файл"
                     Command="{Binding OpenFileCommand}"/>
-            
+
+            <Button Content="Сохранить файл"
+                    Command="{Binding SaveFileCommand}"/>
+
         </StackPanel>
 
         <GridSplitter Grid.Row="0"

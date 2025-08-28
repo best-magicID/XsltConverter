@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -67,6 +68,23 @@ namespace XsltConverter.Classes
 
         #endregion
 
+        public List<ObservableCollection<Employee>> GetListCollections()
+        {
+            var list = new List<ObservableCollection<Employee>>();
+            list.Add(ListForJanuary);
+            list.Add(ListForFebruary);
+            list.Add(ListForMarch);
+            list.Add(ListForApril);
+            list.Add(ListForMay);
+            list.Add(ListForJune);
+            list.Add(ListForJuly);
+            list.Add(ListForAugust);
+            list.Add(ListForSeptember);
+            list.Add(ListForOctober);
+            list.Add(ListForDecember);
 
+            return list;
+        }
+        
     }
 }
