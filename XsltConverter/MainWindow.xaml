@@ -24,7 +24,7 @@
     
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="0.15*"/>
+            <ColumnDefinition Width="0.16*"/>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -39,14 +39,24 @@
                     Grid.Column="0"
                     Grid.RowSpan="3"
                     HorizontalAlignment="Left">
-            <Button Content="Выбрать файл"
+            <Button Content="Выбрать XML файл"
                     Command="{Binding SelectFileCommand}"/>
 
-            <Button Content="Обработать файл"
-                    Command="{Binding OpenFileCommand}"/>
+            <Button Command="{Binding OpenReadChangeFileCommand}">
+                <Button.Content>
+                    <TextBlock Text="Обработать данные"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </Button.Content>
+            </Button>
 
-            <Button Content="Сохранить файл"
-                    Command="{Binding SaveFileCommand}"/>
+            <Button Command="{Binding SaveFileCommand}">
+                <Button.Content>
+                    <TextBlock Text="Сохранить обработанные данные в новый XML файл"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </Button.Content>
+            </Button>
 
         </StackPanel>
 
@@ -64,7 +74,7 @@
             <StackPanel Orientation="Horizontal" 
                         DockPanel.Dock="Top">
 
-                <TextBlock Text="Сгруппированная нформация "
+                <TextBlock Text="Сгруппированная информация "
                            Margin="5 0 0 0"/>
 
                 <TextBlock Text="{Binding NameFile}"/>

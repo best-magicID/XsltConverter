@@ -71,7 +71,7 @@ namespace XsltConverter
         #region КОМАНДЫ
 
         public RaiseCommand? SelectFileCommand { get; set; }
-        public RaiseCommand? OpenFileCommand { get; set; }
+        public RaiseCommand? OpenReadChangeFileCommand { get; set; }
         public RaiseCommand? SaveFileCommand { get; set; }
 
         #endregion
@@ -112,8 +112,8 @@ namespace XsltConverter
         public void LoadCommands()
         {
             SelectFileCommand = new RaiseCommand(SelectFileCommand_Execute);
-            OpenFileCommand = new RaiseCommand(OpenFileCommand_Execute, OpenFileCommand_CanExecute);
-            SaveFileCommand = new RaiseCommand(SaveFileCommand_Execute, OpenFileCommand_CanExecute);
+            OpenReadChangeFileCommand = new RaiseCommand(OpenReadChangeFileCommand_Execute, OpenReadChangeFileCommand_CanExecute);
+            SaveFileCommand = new RaiseCommand(SaveFileCommand_Execute, OpenReadChangeFileCommand_CanExecute);
         }
 
         /// <summary>
@@ -160,7 +160,7 @@ namespace XsltConverter
         }
 
         /// <summary>
-        /// Открыть и прочитать XML файл
+        /// Прочитать XML файл
         /// </summary>
         public void ReadXmlFile()
         {
@@ -174,11 +174,11 @@ namespace XsltConverter
             XmlDocument xmlDocument = new XmlDocument();
             xmlDocument.Load(PathAndNameFile);
 
-            XmlElement? RootObject = xmlDocument.DocumentElement;
+            XmlElement? rootObject = xmlDocument.DocumentElement;
 
-            if (RootObject != null)
+            if (rootObject != null)
             {
-                foreach (XmlElement node in RootObject)
+                foreach (XmlElement node in rootObject)
                 {
                     var temp = Enum.TryParse(node.Name.ToLower(), out Month outMount0) ? outMount0 : Month.unknown;
 
@@ -343,15 +343,16 @@ namespace XsltConverter
         }
 
         /// <summary>
-        /// Выполнить команду "Открыть файл"
+        /// Выполнить команду "Обработать файл"
         /// </summary>
         /// <param name="parameter"></param>
-        private void OpenFileCommand_Execute(object parameter)
+        private void OpenReadChangeFileCommand_Execute(object parameter)
         {
             try
             {
                 ReadXmlFile();
                 ConvertData();
+                ChangeSourceFile();
             }
             catch (Exception ex)
             {
@@ -366,7 +367,7 @@ namespace XsltConverter
         /// </summary>
         /// <param name="parameter"></param>
         /// <returns></returns>
-        private bool OpenFileCommand_CanExecute(object parameter)
+        private bool OpenReadChangeFileCommand_CanExecute(object parameter)
         {
             return !string.IsNullOrEmpty(PathAndNameFile);
         }
@@ -446,6 +447,40 @@ namespace XsltConverter
                 xmlTextWriter.IndentChar = '\t';
                 xmlTextWriter.Indentation = 1;
                 xmlDocument.WriteTo(xmlTextWriter);
+            }
+        }
+
+        /// <summary>
+        /// Изменить исходный XML файл. 
+        /// Добавление общей суммы
+        /// </summary>
+        public void ChangeSourceFile()
+        {
+            if (!string.IsNullOrEmpty(PathAndNameFile))
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(PathAndNameFile);
+
+                XmlElement? rootObject = xmlDocument.DocumentElement;
+
+                if (rootObject != null)
+                {
+                    if (rootObject.Name.ToLower() == "pay")
+                    {
+                        double allamount = ListAllEmployees.Sum(x => x.Amount);
+                        XmlAttribute xmlAttribute = xmlDocument.CreateAttribute(nameof(allamount));
+                        xmlAttribute.Value = allamount.ToString();
+                        rootObject.Attributes.Append(xmlAttribute);
+
+                        using (XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8))
+                        {
+                            xmlTextWriter.Formatting = Formatting.Indented;
+                            xmlTextWriter.IndentChar = '\t';
+                            xmlTextWriter.Indentation = 1;
+                            xmlDocument.WriteTo(xmlTextWriter);
+                        }
+                    }
+                }
             }
         }
 
