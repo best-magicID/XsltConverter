@@ -1,12 +1,9 @@
 ﻿using Microsoft.Win32;
-using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Controls;
 using System.Xml;
 using System.Xml.Linq;
 using XsltConverter.Classes;
@@ -127,9 +124,11 @@ namespace XsltConverter
         {
             try
             {
-                SelectFile();
-                ReadXmlFile();
-                ConvertData();
+                if(SelectFile())
+                {
+                    ReadXmlFile();
+                    ConvertData();
+                }
             }
             catch (Exception ex)
             {
@@ -140,17 +139,24 @@ namespace XsltConverter
         }
 
         /// <summary>
-        /// Выбор файла
+        /// Выбор файла (Путь с названием файла и его расширением)
         /// </summary>
-        /// <returns>Путь с названием файла и его расширением</returns>
-        public void SelectFile()
+        /// <returns>true - если файл выбран</returns>
+        public bool SelectFile()
         {
             OpenFileDialog openFileDialog = new();
-            openFileDialog.ShowDialog();
+            var isOpen = openFileDialog.ShowDialog() ?? false; 
+
+            if(!isOpen)
+            {
+                return false;
+            }
 
             NameFile = openFileDialog.SafeFileName;
 
             PathAndNameFile = openFileDialog.FileName;
+
+            return true;
         }
 
         /// <summary>
@@ -368,22 +374,32 @@ namespace XsltConverter
 
         public void SaveFile()
         {
+            SaveFileDialog saveFileDialog = new();
+            saveFileDialog.Filter = "Xml файлы|*.xml";
+            saveFileDialog.FileName = "Employees " + DateTime.Now.ToString("dd.MM.yyyy hh-mm") + ".xml";
+            var isSave = saveFileDialog.ShowDialog() ?? false;
+
+            if(!isSave)
+            {
+                return;
+            }
+
             XDocument xmlDocument = new XDocument();
             
-            XElement Employees = new XElement("Employees"); // Корневой элемент
+            XElement rootEmployees = new XElement("Employees"); // Корневой элемент
 
             foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
             {
-                XElement employee = new XElement(nameof(Employee)); // Сотрудник
+                XElement employeeElement = new XElement(nameof(Employee)); // Сотрудник
 
                 XAttribute nameAttr = new XAttribute("name", employeeInfoForYear.Name);
-                employee.Add(nameAttr); // Атрибут сотрудника
+                employeeElement.Add(nameAttr); // Атрибут сотрудника
                 XAttribute surNameAttr = new XAttribute("surname", employeeInfoForYear.SurName);
-                employee.Add(surNameAttr);
+                employeeElement.Add(surNameAttr);
 
                 foreach (var listForMonth in employeeInfoForYear.GetListCollections())
                 {
-                    foreach (var item in listForMonth)
+                    foreach (Employee item in listForMonth)
                     {
                         XElement salaryElement = new XElement("salary");
 
@@ -393,16 +409,12 @@ namespace XsltConverter
                         XAttribute mountAttr = new XAttribute("mount", item.Mount);
                         salaryElement.Add(mountAttr);
 
-                        employee.Add(salaryElement);
+                        employeeElement.Add(salaryElement);
                     }
                 }
-                Employees.Add(employee);
+                rootEmployees.Add(employeeElement);
             }
-            xmlDocument.Add(Employees);
-
-            SaveFileDialog saveFileDialog = new();
-            saveFileDialog.ShowDialog();
-            //xmlDocument.Save(saveFileDialog.FileName + ".xml");
+            xmlDocument.Add(rootEmployees);
 
             using (XmlTextWriter xmlTextWriter = new XmlTextWriter(saveFileDialog.FileName + ".xml", Encoding.UTF8))
             {
