@@ -1,10 +1,13 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace XsltConverter.Classes
 {
-    public class EmployeeInfoForYear
+    public class EmployeeInfoForYear : INotifyPropertyChanged
     {
-        public string Name { get; set; } 
+        public string Name { get; set; }
+
         public string SurName { get; set; }
 
         public double AmountForJanuary { get; set; } 
@@ -43,11 +46,27 @@ namespace XsltConverter.Classes
         public double AmountForDecember { get; set; }
         public ObservableCollection<Employee> ListForDecember { get; set; } = [];
 
+        public double AmountForUnknown { get; set; }
+        public ObservableCollection<Employee> ListForUnknown { get; set; } = [];
+
+
         public EmployeeInfoForYear(string newName, string newSurName)
         {
             Name = newName;
             SurName = newSurName; 
         }
+
+
+        #region ОБНОВЛЕНИЕ UI
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+
 
     }
 }

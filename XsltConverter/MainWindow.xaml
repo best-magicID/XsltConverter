@@ -9,7 +9,7 @@
         d:DataContext="{d:DesignInstance Type=local:MainWindow}"
         Title="Xslt конвертер" 
         Height="450" 
-        Width="400" 
+        Width="900" 
         WindowStartupLocation="CenterScreen">
 
     <Window.Resources>
@@ -24,18 +24,20 @@
     
     <Grid Margin="5">
         <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.15*"/>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <!--Первая часть-->
         <StackPanel Grid.Row="0"
                     Grid.Column="0"
-                    Grid.RowSpan="2"
+                    Grid.RowSpan="3"
                     HorizontalAlignment="Left">
             <Button Content="Выбрать файл"
                     Command="{Binding SelectFileCommand}"/>
@@ -45,20 +47,136 @@
             
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" 
-                    Grid.Row="0"
-                    Grid.Column="1">
-            
-            <TextBlock Text="Информация "
-                       Margin="5 0 0 0"/>
+        <GridSplitter Grid.Row="0"
+                      Grid.Column="1" 
+                      Grid.RowSpan="3"
+                      Width="5" 
+                      HorizontalAlignment="Stretch" />
+        
+        <!--Вторая часть-->
+        <DockPanel Grid.Row="0"
+                   Grid.Column="2"
+                   LastChildFill="True">
 
-            <TextBlock Text="{Binding NameFile}"/>
+            <StackPanel Orientation="Horizontal" 
+                        DockPanel.Dock="Top">
 
-        </StackPanel>
+                <TextBlock Text="Сгруппированная нформация "
+                           Margin="5 0 0 0"/>
 
-        <DataGrid Grid.Row="1"
-                  Grid.Column="1"
-                  Margin="5 0 0 0"
-                  ItemsSource="{Binding ListAllEmployees}"/>
+                <TextBlock Text="{Binding NameFile}"/>
+
+            </StackPanel>
+
+            <DataGrid Margin="5 0 0 0"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      AutoGenerateColumns="False"
+                      ItemsSource="{Binding ListEmployeesInfoForYear}">
+                <DataGrid.Columns>
+                    <!--<DataGridTextColumn Header="№ " 
+                                        Binding="{Binding Path=Name}"
+                                        Width="Auto" 
+                                        IsReadOnly="True"/>-->
+
+                    <DataGridTextColumn Header="Имя" 
+                                        Binding="{Binding Path=Name}"
+                                        Width="Auto" 
+                                        IsReadOnly="True"/>
+                    
+                    <DataGridTextColumn Header="Фамилия" 
+                                        Binding="{Binding Path=SurName}"
+                                        Width="Auto" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Январь" 
+                                        Binding="{Binding Path=AmountForJanuary}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Февраль" 
+                                        Binding="{Binding Path=AmountForFebruary}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Март" 
+                                        Binding="{Binding Path=AmountForMarch}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Апрель" 
+                                        Binding="{Binding Path=AmountForApril}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Май" 
+                                        Binding="{Binding Path=AmountForMay}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Июнь" 
+                                        Binding="{Binding Path=AmountForJune}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Июль" 
+                                        Binding="{Binding Path=AmountForJuly}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Август" 
+                                        Binding="{Binding Path=AmountForAugust}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Сентябрь" 
+                                        Binding="{Binding Path=AmountForSeptember}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Октябрь" 
+                                        Binding="{Binding Path=AmountForOctober}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Ноябрь" 
+                                        Binding="{Binding Path=AmountForNovember}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                    <DataGridTextColumn Header="Декабрь" 
+                                        Binding="{Binding Path=AmountForDecember}"
+                                        Width="*" 
+                                        IsReadOnly="True"/>
+
+                </DataGrid.Columns>
+            </DataGrid>
+        </DockPanel>
+
+
+        <GridSplitter Grid.Row="1"
+                      Grid.Column="2"
+                      Height="5" 
+                      HorizontalAlignment="Stretch"/>
+
+        <!--Треться часть-->
+        <DockPanel Grid.Row="3"
+                   Grid.Column="2"
+                   LastChildFill="True">
+
+            <StackPanel Orientation="Horizontal" 
+                        DockPanel.Dock="Top">
+
+                <TextBlock Text="Построчная информация "
+                           Margin="5 0 0 0"/>
+
+                <TextBlock Text="{Binding NameFile}"/>
+
+            </StackPanel>
+
+            <DataGrid Margin="5 0 0 0"
+                      ItemsSource="{Binding ListAllEmployees}"/>
+        </DockPanel>
+
     </Grid>
 </Window>

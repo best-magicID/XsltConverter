@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Xml;
@@ -39,10 +38,13 @@ namespace XsltConverter
         public ObservableCollection<Employee> ListAllEmployees { get; set; } = [];
 
         /// <summary>
-        /// Словарь месяцев
+        /// Список сотрудников с группировкой и объединением суммы по месяцам
         /// </summary>
-        public Dictionary<Month, ObservableCollection<Employee>> DictionaryMonths = [];
+        public ObservableCollection<EmployeeInfoForYear> ListEmployeesInfoForYear { get; set; } = [];
 
+        /// <summary>
+        /// Список месяцев
+        /// </summary>
         public List<Month> ListMonths { get; set; } = new List<Month>();
 
         /// <summary>
@@ -120,6 +122,7 @@ namespace XsltConverter
             {
                 SelectFile();
                 ReadXmlFile();
+                ConvertData();
             }
             catch (Exception ex)
             {
@@ -210,6 +213,110 @@ namespace XsltConverter
         }
 
         /// <summary>
+        /// Конвертирование данных
+        /// </summary>
+        public void ConvertData()
+        {
+            ListEmployeesInfoForYear.Clear();
+
+            foreach (var employee in ListAllEmployees)
+            {
+                if(!ListEmployeesInfoForYear.Any(x => x.Name == employee.Name && x.SurName == employee.SurName))
+                {
+                    ListEmployeesInfoForYear.Add(new EmployeeInfoForYear(newName: employee.Name,
+                                                                         newSurName: employee.SurName));
+                }
+            }
+
+            foreach (Employee employee in ListAllEmployees)
+            {
+                foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
+                {
+                    if(employeeInfoForYear.Name == employee.Name && employeeInfoForYear.SurName == employee.SurName)
+                    {
+                        AddInListEmployeesInfoForYear(employee, employeeInfoForYear);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Распределение по месяцам
+        /// </summary>
+        /// <param name="employee"></param>
+        /// <param name="employeeInfoForYear"></param>
+        public void AddInListEmployeesInfoForYear(Employee employee, EmployeeInfoForYear employeeInfoForYear)
+        {
+            switch (employee.Mount)
+            {
+                case Month.january:
+                    employeeInfoForYear.ListForJanuary.Add(employee);
+                    employeeInfoForYear.AmountForJanuary += employee.Amount;
+                    break;
+
+                case Month.february:
+                    employeeInfoForYear.ListForFebruary.Add(employee);
+                    employeeInfoForYear.AmountForFebruary += employee.Amount;
+                    break;
+
+                case Month.march:
+                    employeeInfoForYear.ListForMarch.Add(employee);
+                    employeeInfoForYear.AmountForMarch += employee.Amount;
+                    break;
+
+                case Month.april:
+                    employeeInfoForYear.ListForApril.Add(employee);
+                    employeeInfoForYear.AmountForApril += employee.Amount;
+                    break;
+
+                case Month.may:
+                    employeeInfoForYear.ListForMay.Add(employee);
+                    employeeInfoForYear.AmountForMay += employee.Amount;
+                    break;
+
+                case Month.june:
+                    employeeInfoForYear.ListForJune.Add(employee);
+                    employeeInfoForYear.AmountForJune += employee.Amount;
+                    break;
+
+                case Month.july:
+                    employeeInfoForYear.ListForJuly.Add(employee);
+                    employeeInfoForYear.AmountForJuly += employee.Amount;
+                    break;
+
+                case Month.august:
+                    employeeInfoForYear.ListForAugust.Add(employee);
+                    employeeInfoForYear.AmountForAugust += employee.Amount;
+                    break;
+
+                case Month.september:
+                    employeeInfoForYear.ListForSeptember.Add(employee);
+                    employeeInfoForYear.AmountForSeptember += employee.Amount;
+                    break;
+
+                case Month.october:
+                    employeeInfoForYear.ListForOctober.Add(employee);
+                    employeeInfoForYear.AmountForOctober += employee.Amount;
+                    break;
+
+                case Month.november:
+                    employeeInfoForYear.ListForNovember.Add(employee);
+                    employeeInfoForYear.AmountForNovember += employee.Amount;
+                    break;
+
+                case Month.december:
+                    employeeInfoForYear.ListForDecember.Add(employee);
+                    employeeInfoForYear.AmountForJanuary += employee.Amount;
+                    break;
+
+                default:
+                    employeeInfoForYear.ListForUnknown.Add(employee);
+                    employeeInfoForYear.AmountForUnknown += employee.Amount;
+                    break;
+            }
+        }
+
+        /// <summary>
         /// Выполнить команду "открыть файл"
         /// </summary>
         /// <param name="parameter"></param>
@@ -218,6 +325,7 @@ namespace XsltConverter
             try
             {
                 ReadXmlFile();
+                ConvertData();
             }
             catch (Exception ex)
             {
