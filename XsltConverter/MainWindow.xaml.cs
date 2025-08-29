@@ -7,6 +7,7 @@ using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 using XsltConverter.Classes;
+using XsltConverter.Windows;
 
 namespace XsltConverter
 {
@@ -73,6 +74,7 @@ namespace XsltConverter
         public RaiseCommand? SelectFileCommand { get; set; }
         public RaiseCommand? OpenReadChangeFileCommand { get; set; }
         public RaiseCommand? SaveFileCommand { get; set; }
+        public RaiseCommand? AddItemInFileCommand { get; set; }
 
         #endregion
 
@@ -114,6 +116,7 @@ namespace XsltConverter
             SelectFileCommand = new RaiseCommand(SelectFileCommand_Execute);
             OpenReadChangeFileCommand = new RaiseCommand(OpenReadChangeFileCommand_Execute, OpenReadChangeFileCommand_CanExecute);
             SaveFileCommand = new RaiseCommand(SaveFileCommand_Execute, OpenReadChangeFileCommand_CanExecute);
+            AddItemInFileCommand = new RaiseCommand(AddItemInFileCommand_Execute, OpenReadChangeFileCommand_CanExecute);
         }
 
         /// <summary>
@@ -482,6 +485,26 @@ namespace XsltConverter
                     }
                 }
             }
+        }
+
+        private void AddItemInFileCommand_Execute(object parameter)
+        {
+            try
+            {
+                AddItemInFile();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка:" + ex.ToString(),
+                                "Внимание",
+                                MessageBoxButton.OK);
+            }
+        }
+
+        public void AddItemInFile()
+        {
+            WindowAddItemInFile windowAddItemInFile = new WindowAddItemInFile();
+            windowAddItemInFile.ShowDialog();
         }
 
         #endregion

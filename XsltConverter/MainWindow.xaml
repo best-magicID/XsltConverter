@@ -58,6 +58,15 @@
                 </Button.Content>
             </Button>
 
+            <Button Command="{Binding AddItemInFileCommand}">
+                <Button.Content>
+                    <TextBlock Text="Добавить новое значение в исходный XML файл"
+                               TextWrapping="Wrap"
+                               HorizontalAlignment="Center"/>
+                </Button.Content>
+            </Button>
+
+
         </StackPanel>
 
         <GridSplitter Grid.Row="0"
