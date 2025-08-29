@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
+using System.Windows.Xps.Packaging;
 using System.Xml;
 using System.Xml.Linq;
 using XsltConverter.Classes;
@@ -183,17 +185,22 @@ namespace XsltConverter
             {
                 foreach (XmlElement node in rootObject)
                 {
-                    var temp = Enum.TryParse(node.Name.ToLower(), out Month outMount0) ? outMount0 : Month.unknown;
-
-                    if (ListMonths.Contains(temp))
+                    if(node.Name.ToLower() =="item")
                     {
-                        foreach (XmlNode childNode in node.ChildNodes)
+                        AddInListEmployees(xmlElement: node);
+                    }
+                    else
+                    {
+                        var temp = Enum.TryParse(node.Name.ToLower(), out Month outMount) ? outMount : Month.unknown;
+
+                        if (ListMonths.Contains(temp))
                         {
-                            AddInListEmployees(xmlNode: childNode);
+                            foreach (XmlNode childNode in node.ChildNodes)
+                            {
+                                AddInListEmployees(xmlNode: childNode);
+                            }
                         }
                     }
-
-                    AddInListEmployees(xmlElement: node);
                 }
             }
         }
@@ -221,8 +228,8 @@ namespace XsltConverter
             var tempAmount = amount?.Value?.ToString().Replace('.', ',');
             var amountDouble = double.TryParse(tempAmount, out double outAmount) ? outAmount : 0;
 
-            XmlNode? mount = node.Attributes.GetNamedItem(nameof(mount));
-            string mountString = mount?.Value ?? string.Empty;
+            XmlNode? month = node.Attributes.GetNamedItem(nameof(month)) ?? node.Attributes.GetNamedItem("mount");
+            string mountString = month?.Value ?? string.Empty;
             Month mountEnum = Enum.TryParse(mountString.ToLower(), out Month outMount) ? outMount : Month.unknown;
 
             Employee employee = new Employee(newName: nameString,
@@ -276,7 +283,7 @@ namespace XsltConverter
         /// <param name="employeeInfoForYear"></param>
         public void AddInListEmployeesInfoForYear(Employee employee, EmployeeInfoForYear employeeInfoForYear)
         {
-            switch (employee.Mount)
+            switch (employee.Month)
             {
                 case Month.january:
                     employeeInfoForYear.ListForJanuary.Add(employee);
@@ -434,8 +441,8 @@ namespace XsltConverter
                         XAttribute amountAttr = new XAttribute("amount", item.Amount);
                         salaryElement.Add(amountAttr);
 
-                        XAttribute mountAttr = new XAttribute("mount", item.Mount);
-                        salaryElement.Add(mountAttr);
+                        XAttribute monthAttr = new XAttribute("month", item.Month);
+                        salaryElement.Add(monthAttr);
 
                         employeeElement.Add(salaryElement);
                     }
@@ -475,18 +482,16 @@ namespace XsltConverter
                         xmlAttribute.Value = allamount.ToString();
                         rootObject.Attributes.Append(xmlAttribute);
 
-                        using (XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8))
-                        {
-                            xmlTextWriter.Formatting = Formatting.Indented;
-                            xmlTextWriter.IndentChar = '\t';
-                            xmlTextWriter.Indentation = 1;
-                            xmlDocument.WriteTo(xmlTextWriter);
-                        }
+                        WriteTextInXml(xmlDocument);
                     }
                 }
             }
         }
 
+        /// <summary>
+        /// Выполнить команду "Добавление нового item в файл"
+        /// </summary>
+        /// <param name="parameter"></param>
         private void AddItemInFileCommand_Execute(object parameter)
         {
             try
@@ -501,10 +506,81 @@ namespace XsltConverter
             }
         }
 
+        /// <summary>
+        /// Добавление нового item в файл
+        /// </summary>
         public void AddItemInFile()
         {
-            WindowAddItemInFile windowAddItemInFile = new WindowAddItemInFile();
+            WindowAddItemInFile windowAddItemInFile = new WindowAddItemInFile(ListMonths);
             windowAddItemInFile.ShowDialog();
+
+            if(!windowAddItemInFile.IsAdd)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(PathAndNameFile))
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(PathAndNameFile);
+
+                XmlElement? rootObject = xmlDocument.DocumentElement;
+
+                if (rootObject != null)
+                {
+                    if (rootObject.Name.ToLower() == "pay")
+                    {
+                        if(rootObject.FirstChild?.Name?.ToLower() == "item")
+                        {
+                            XmlElement itemElem = xmlDocument.CreateElement("item");
+
+                            XmlAttribute nameAttr = xmlDocument.CreateAttribute("name");
+                            nameAttr.Value = windowAddItemInFile.NewEmployee.Name;
+                            itemElem.Attributes.Append(nameAttr);
+
+                            XmlAttribute surNmeAttr = xmlDocument.CreateAttribute("surname");
+                            surNmeAttr.Value = windowAddItemInFile.NewEmployee.SurName;
+                            itemElem.Attributes.Append(surNmeAttr);
+
+                            XmlAttribute amountAttr = xmlDocument.CreateAttribute("amount");
+                            amountAttr.Value = windowAddItemInFile.NewEmployee.Amount.ToString();
+                            itemElem.Attributes.Append(amountAttr);
+
+                            XmlAttribute monthAttr = xmlDocument.CreateAttribute("month");
+                            monthAttr.Value = windowAddItemInFile.NewEmployee.Month.ToString();
+                            itemElem.Attributes.Append(monthAttr);
+
+                            rootObject.AppendChild(itemElem);
+
+                            WriteTextInXml(xmlDocument);
+                        }
+
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Запись изменений в файл с табуляцией
+        /// </summary>
+        /// <param name="xmlDocument"></param>
+        public void WriteTextInXml(XmlDocument xmlDocument)
+        {
+            if (string.IsNullOrEmpty(PathAndNameFile))
+            {
+                MessageBox.Show("Не указан путь или файл", 
+                                "Внимание", 
+                                MessageBoxButton.OK, 
+                                MessageBoxImage.Error);
+                return;
+            }
+
+            using XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8);
+            xmlTextWriter.Formatting = Formatting.Indented;
+            xmlTextWriter.IndentChar = '\t';
+            xmlTextWriter.Indentation = 1;
+
+            xmlDocument.WriteTo(xmlTextWriter);
         }
 
         #endregion

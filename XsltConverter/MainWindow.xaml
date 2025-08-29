@@ -203,7 +203,10 @@
             </StackPanel>
 
             <DataGrid Margin="5 0 0 0"
-                      ItemsSource="{Binding ListAllEmployees}"/>
+                      ItemsSource="{Binding ListAllEmployees}"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      IsReadOnly="True"/>
         </DockPanel>
 
     </Grid>
