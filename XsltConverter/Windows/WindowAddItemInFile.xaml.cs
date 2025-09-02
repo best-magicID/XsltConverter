@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using XsltConverter.Classes;
+using XsltConverter.Models;
 
 namespace XsltConverter.Windows
 {
