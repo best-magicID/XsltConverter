@@ -1,39 +1,17 @@
 ﻿using Microsoft.Win32;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Windows;
-using System.Windows.Xps.Packaging;
 using System.Xml;
 using System.Xml.Linq;
-using XsltConverter.Classes;
+using XsltConverter.Models;
 using XsltConverter.Windows;
 
-namespace XsltConverter
+namespace XsltConverter.ViewModels
 {
-    public enum Month
-    {
-        january = 1,
-        february = 2,
-        march = 3,
-        april = 4,
-        may = 5,
-        june = 6,
-        july = 7,
-        august = 8,
-        september = 9,
-        october = 10,
-        november = 11,
-        december = 12,
-        unknown = 13,
-    }
-
-    /// <summary>
-    /// Логика для главного окна
-    /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public class MainViewModel: INotifyPropertyChanged
     {
         #region ПОЛЯ И СВОЙСТВА
 
@@ -84,19 +62,14 @@ namespace XsltConverter
 
         #region КОНСТРУКТОР
 
-        public MainWindow()
+        public MainViewModel()
         {
-            InitializeComponent();
-
             LoadCommands();
 
             ListMonths = Enum.GetValues(typeof(Month)).Cast<Month>().ToList();
-
-            DataContext = this;
         }
 
         #endregion
-
 
         #region ОБНОВЛЕНИЕ UI
 
@@ -129,7 +102,7 @@ namespace XsltConverter
         {
             try
             {
-                if(SelectFile())
+                if (SelectFile())
                 {
                     ReadXmlFile();
                     ConvertData();
@@ -137,7 +110,7 @@ namespace XsltConverter
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка:" + ex.ToString(), 
+                MessageBox.Show("Ошибка:" + ex.ToString(),
                                 "Внимание",
                                 MessageBoxButton.OK);
             }
@@ -150,9 +123,9 @@ namespace XsltConverter
         public bool SelectFile()
         {
             OpenFileDialog openFileDialog = new();
-            var isOpen = openFileDialog.ShowDialog() ?? false; 
+            var isOpen = openFileDialog.ShowDialog() ?? false;
 
-            if(!isOpen)
+            if (!isOpen)
             {
                 return false;
             }
@@ -169,10 +142,10 @@ namespace XsltConverter
         /// </summary>
         public void ReadXmlFile()
         {
-            if(string.IsNullOrEmpty(PathAndNameFile))
+            if (string.IsNullOrEmpty(PathAndNameFile))
             {
                 return;
-            }    
+            }
 
             ListAllEmployees.Clear();
 
@@ -185,7 +158,7 @@ namespace XsltConverter
             {
                 foreach (XmlElement node in rootObject)
                 {
-                    if(node.Name.ToLower() =="item")
+                    if (node.Name.ToLower() == "item")
                     {
                         AddInListEmployees(xmlElement: node);
                     }
@@ -250,7 +223,7 @@ namespace XsltConverter
             // Получение списка сотрудников без дубликатов
             foreach (var employee in ListAllEmployees)
             {
-                if(!ListEmployeesInfoForYear.Any(x => x.Name == employee.Name && x.SurName == employee.SurName))
+                if (!ListEmployeesInfoForYear.Any(x => x.Name == employee.Name && x.SurName == employee.SurName))
                 {
                     ListEmployeesInfoForYear.Add(new EmployeeInfoForYear(newName: employee.Name,
                                                                          newSurName: employee.SurName));
@@ -262,7 +235,7 @@ namespace XsltConverter
             {
                 foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
                 {
-                    if(employeeInfoForYear.Name == employee.Name && employeeInfoForYear.SurName == employee.SurName)
+                    if (employeeInfoForYear.Name == employee.Name && employeeInfoForYear.SurName == employee.SurName)
                     {
                         AddInListEmployeesInfoForYear(employee, employeeInfoForYear);
                     }
@@ -270,7 +243,7 @@ namespace XsltConverter
             }
 
             // Подсчет годовой суммы
-            foreach(var employeeInfoForYear in ListEmployeesInfoForYear)
+            foreach (var employeeInfoForYear in ListEmployeesInfoForYear)
             {
                 employeeInfoForYear.AmountForYear = employeeInfoForYear.GetAllAmount();
             }
@@ -386,7 +359,7 @@ namespace XsltConverter
         /// Выполнить команду "Сохранить файл"
         /// </summary>
         /// <param name="parameter"></param>
-        private void SaveFileCommand_Execute(Object parameter)
+        private void SaveFileCommand_Execute(object parameter)
         {
             try
             {
@@ -410,13 +383,13 @@ namespace XsltConverter
             saveFileDialog.FileName = "Employees " + DateTime.Now.ToString("dd.MM.yyyy hh-mm") + ".xml";
             var isSave = saveFileDialog.ShowDialog() ?? false;
 
-            if(!isSave)
+            if (!isSave)
             {
                 return;
             }
 
             XDocument xmlDocument = new XDocument();
-            
+
             XElement rootEmployees = new XElement("Employees"); // Корневой элемент
 
             foreach (EmployeeInfoForYear employeeInfoForYear in ListEmployeesInfoForYear)
@@ -424,7 +397,7 @@ namespace XsltConverter
                 XElement employeeElement = new XElement(nameof(Employee)); // Сотрудник
 
                 XAttribute nameAttr = new XAttribute("name", employeeInfoForYear.Name); // Атрибут сотрудника
-                employeeElement.Add(nameAttr); 
+                employeeElement.Add(nameAttr);
 
                 XAttribute surNameAttr = new XAttribute("surname", employeeInfoForYear.SurName);
                 employeeElement.Add(surNameAttr);
@@ -514,7 +487,7 @@ namespace XsltConverter
             WindowAddItemInFile windowAddItemInFile = new WindowAddItemInFile(ListMonths);
             windowAddItemInFile.ShowDialog();
 
-            if(!windowAddItemInFile.IsAdd)
+            if (!windowAddItemInFile.IsAdd)
             {
                 return;
             }
@@ -530,7 +503,7 @@ namespace XsltConverter
                 {
                     if (rootObject.Name.ToLower() == "pay")
                     {
-                        if(rootObject.FirstChild?.Name?.ToLower() == "item")
+                        if (rootObject.FirstChild?.Name?.ToLower() == "item")
                         {
                             XmlElement itemElem = xmlDocument.CreateElement("item");
 
@@ -568,9 +541,9 @@ namespace XsltConverter
         {
             if (string.IsNullOrEmpty(PathAndNameFile))
             {
-                MessageBox.Show("Не указан путь или файл", 
-                                "Внимание", 
-                                MessageBoxButton.OK, 
+                MessageBox.Show("Не указан путь или файл",
+                                "Внимание",
+                                MessageBoxButton.OK,
                                 MessageBoxImage.Error);
                 return;
             }

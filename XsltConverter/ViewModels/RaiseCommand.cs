@@ -1,6 +1,6 @@
 using System.Windows.Input;
 
-namespace XsltConverter.Classes
+namespace XsltConverter.ViewModels
 {
     /// <summary>
     /// Вызов команды
@@ -16,18 +16,18 @@ namespace XsltConverter.Classes
             CanExecuteDelegate = canExecuteCommand;
         }
 
+        public event EventHandler? CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
         public bool CanExecute(object parameter)
         {
             if (CanExecuteDelegate != null)
                 return CanExecuteDelegate(parameter);
 
             return true;
-        }
-
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
-            remove { CommandManager.RequerySuggested -= value; }
         }
 
         public void Execute(object parameter)
