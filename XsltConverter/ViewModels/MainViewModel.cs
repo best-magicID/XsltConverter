@@ -170,41 +170,6 @@ namespace XsltConverter.ViewModels
         }
 
         /// <summary>
-        /// Добавление сотрудников в список
-        /// </summary>
-        /// <param name="xmlElement"></param>
-        /// <param name="xmlNode"></param>
-        public void AddInListEmployees(XmlElement? xmlElement = null, XmlNode? xmlNode = null)
-        {
-            var node = xmlElement ?? xmlNode;
-            if (node == null || node?.Attributes?.Count < 1)
-            {
-                return;
-            }
-
-            XmlNode? name = node.Attributes.GetNamedItem(nameof(name));
-            string nameString = name?.Value ?? string.Empty;
-
-            XmlNode? surname = node.Attributes.GetNamedItem(nameof(surname));
-            string surnameString = surname?.Value ?? string.Empty;
-
-            XmlNode? amount = node.Attributes.GetNamedItem(nameof(amount));
-            var tempAmount = amount?.Value?.ToString().Replace('.', ',');
-            var amountDouble = double.TryParse(tempAmount, out double outAmount) ? outAmount : 0;
-
-            XmlNode? month = node.Attributes.GetNamedItem(nameof(month)) ?? node.Attributes.GetNamedItem("mount");
-            string mountString = month?.Value ?? string.Empty;
-            Month mountEnum = Enum.TryParse(mountString.ToLower(), out Month outMount) ? outMount : Month.unknown;
-
-            Employee employee = new Employee(newName: nameString,
-                                             newSurName: surnameString,
-                                             newAmount: amountDouble,
-                                             newMonth: mountEnum);
-
-            ListAllEmployees.Add(employee);
-        }
-
-        /// <summary>
         /// Конвертирование данных
         /// </summary>
         public void ConvertData()
@@ -371,10 +336,9 @@ namespace XsltConverter.ViewModels
         {
             SaveFileDialog saveFileDialog = new();
             saveFileDialog.Filter = "Xml файлы|*.xml";
-            saveFileDialog.FileName = "Employees " + DateTime.Now.ToString("dd.MM.yyyy hh-mm") + ".xml";
-            var isSave = saveFileDialog.ShowDialog() ?? false;
+            saveFileDialog.FileName = "Employees " + DateTime.Now.ToString("dd.MM.yyyy HH-mm") + ".xml";
 
-            if (!isSave)
+            if (!saveFileDialog.ShowDialog() ?? false)
             {
                 return;
             }
@@ -415,15 +379,7 @@ namespace XsltConverter.ViewModels
             }
             xDocument.Add(rootEmployees);
 
-            WriteToXml(xDocument, saveFileDialog.FileName + ".xml");
-
-            //using (XmlTextWriter xmlTextWriter = new XmlTextWriter(saveFileDialog.FileName + ".xml", Encoding.UTF8))
-            //{
-            //    xmlTextWriter.Formatting = Formatting.Indented;
-            //    xmlTextWriter.IndentChar = '\t';
-            //    xmlTextWriter.Indentation = 1;
-            //    xmlDocument.WriteTo(xmlTextWriter);
-            //}
+            WriteToXml(xDocument, saveFileDialog.FileName);
         }
 
         /// <summary>
@@ -448,6 +404,11 @@ namespace XsltConverter.ViewModels
             xmlTextWriter.Indentation = 1;
 
             xDocument.WriteTo(xmlTextWriter);
+
+            MessageBox.Show($"XML файл сохранен: \r\n{text}",
+                            "Внимание",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Information);
         }
 
         /// <summary>
@@ -527,29 +488,6 @@ namespace XsltConverter.ViewModels
                     xDocument.Save(PathAndNameFile);
                 }
             }
-        }
-
-        /// <summary>
-        /// Запись изменений в файл с табуляцией
-        /// </summary>
-        /// <param name="xmlDocument"></param>
-        public void WriteTextInXml(XmlDocument xmlDocument)
-        {
-            if (string.IsNullOrEmpty(PathAndNameFile))
-            {
-                MessageBox.Show("Не указан путь или файл",
-                                "Внимание",
-                                MessageBoxButton.OK,
-                                MessageBoxImage.Error);
-                return;
-            }
-
-            using XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8);
-            xmlTextWriter.Formatting = Formatting.Indented;
-            xmlTextWriter.IndentChar = '\t';
-            xmlTextWriter.Indentation = 1;
-
-            xmlDocument.WriteTo(xmlTextWriter);
         }
 
         #endregion
