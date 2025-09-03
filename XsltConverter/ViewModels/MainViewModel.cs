@@ -511,43 +511,18 @@ namespace XsltConverter.ViewModels
 
             if (!string.IsNullOrEmpty(PathAndNameFile))
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.Load(PathAndNameFile);
+                XDocument xDocument = XDocument.Load(PathAndNameFile);
+                var rootNode = xDocument.Element("Pay");
 
-                XmlElement? rootObject = xmlDocument.DocumentElement;
-
-                if (rootObject != null)
+                if (rootNode != null)
                 {
-                    if (rootObject.Name.ToLower() == "pay")
-                    {
-                        if (rootObject.FirstChild?.Name?.ToLower() == "item")
-                        {
-                            XmlElement itemElem = xmlDocument.CreateElement("item");
+                    rootNode.Add(new XElement("item",
+                                              new XAttribute("name", windowAddItemInFile.NewEmployee.Name),
+                                              new XAttribute("surname", windowAddItemInFile.NewEmployee.SurName),
+                                              new XAttribute("amount", windowAddItemInFile.NewEmployee.Amount.ToString()),
+                                              new XAttribute("month", windowAddItemInFile.NewEmployee.Month.ToString())));
 
-                            XmlAttribute nameAttr = xmlDocument.CreateAttribute("name");
-                            nameAttr.Value = windowAddItemInFile.NewEmployee.Name;
-                            itemElem.Attributes.Append(nameAttr);
-
-                            XmlAttribute surNmeAttr = xmlDocument.CreateAttribute("surname");
-                            surNmeAttr.Value = windowAddItemInFile.NewEmployee.SurName;
-                            itemElem.Attributes.Append(surNmeAttr);
-
-                            XmlAttribute amountAttr = xmlDocument.CreateAttribute("amount");
-                            amountAttr.Value = windowAddItemInFile.NewEmployee.Amount.ToString();
-                            itemElem.Attributes.Append(amountAttr);
-
-                            XmlAttribute monthAttr = xmlDocument.CreateAttribute("month");
-                            monthAttr.Value = windowAddItemInFile.NewEmployee.Month.ToString();
-                            itemElem.Attributes.Append(monthAttr);
-
-                            rootObject.AppendChild(itemElem);
-
-                            //WriteToXml(xmlDocument, PathAndNameFile);
-
-                            //WriteTextInXml(xmlDocument);
-                        }
-
-                    }
+                    xDocument.Save(PathAndNameFile);
                 }
             }
         }
