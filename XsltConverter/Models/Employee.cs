@@ -25,12 +25,12 @@
         /// </summary>
         public Month Month { get; set; } 
 
-        public Employee(string newName, string newSurName, double newAmount, Month newMount) 
+        public Employee(string newName, string newSurName, double newAmount, Month newMonth) 
         {
             Name = newName;
             SurName = newSurName;
             Amount = newAmount;
-            Month = newMount;
+            Month = newMonth;
         }
     }
 }
