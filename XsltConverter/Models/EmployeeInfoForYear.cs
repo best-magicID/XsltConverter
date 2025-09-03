@@ -1,10 +1,10 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
+//using System.ComponentModel;
+//using System.Runtime.CompilerServices;
 
 namespace XsltConverter.Models
 {
-    public class EmployeeInfoForYear : INotifyPropertyChanged
+    public class EmployeeInfoForYear /*: INotifyPropertyChanged*/
     {
         public string Name { get; set; }
 
@@ -58,16 +58,15 @@ namespace XsltConverter.Models
             SurName = newSurName; 
         }
 
+        //#region ОБНОВЛЕНИЕ UI
 
-        #region ОБНОВЛЕНИЕ UI
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //public void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        //}
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        public void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
+        //#endregion
 
         /// <summary>
         /// Получение списка со всеми месяцами сотрудника

@@ -147,34 +147,25 @@ namespace XsltConverter.ViewModels
                 return;
             }
 
-            ListAllEmployees.Clear();
+            XDocument xmlDocument = XDocument.Load(PathAndNameFile);
 
-            XmlDocument xmlDocument = new XmlDocument();
-            xmlDocument.Load(PathAndNameFile);
+            var list = xmlDocument.Element("Pay")?
+                                  .Descendants()
+                                  .Where(node => node.Name == "item")
+                                  .Select(node => new Employee
+                                  (
+                                      newName: node.Attribute("name")?.Value ?? string.Empty,
+                                      newSurName: node.Attribute("surname")?.Value ?? string.Empty,
+                                      newAmount: double.TryParse(node.Attribute("amount")?.Value.Replace(".", ","), out double outAmount) ? outAmount : 0,
+                                      newMonth: Enum.TryParse(node.Attribute("mount")?.Value ?? node.Attribute("month")?.Value, out Month outMonth) ? outMonth : Month.unknown
+                                  ))
+                                  .ToList();
 
-            XmlElement? rootObject = xmlDocument.DocumentElement;
-
-            if (rootObject != null)
+            if (list != null)
             {
-                foreach (XmlElement node in rootObject)
-                {
-                    if (node.Name.ToLower() == "item")
-                    {
-                        AddInListEmployees(xmlElement: node);
-                    }
-                    else
-                    {
-                        var temp = Enum.TryParse(node.Name.ToLower(), out Month outMount) ? outMount : Month.unknown;
+                ListAllEmployees.Clear();
 
-                        if (ListMonths.Contains(temp))
-                        {
-                            foreach (XmlNode childNode in node.ChildNodes)
-                            {
-                                AddInListEmployees(xmlNode: childNode);
-                            }
-                        }
-                    }
-                }
+                list.ForEach(x => ListAllEmployees.Add(x));
             }
         }
 
@@ -208,7 +199,7 @@ namespace XsltConverter.ViewModels
             Employee employee = new Employee(newName: nameString,
                                              newSurName: surnameString,
                                              newAmount: amountDouble,
-                                             newMount: mountEnum);
+                                             newMonth: mountEnum);
 
             ListAllEmployees.Add(employee);
         }
@@ -388,7 +379,7 @@ namespace XsltConverter.ViewModels
                 return;
             }
 
-            XDocument xmlDocument = new XDocument();
+            XDocument xDocument = new();
 
             XElement rootEmployees = new XElement("Employees"); // Корневой элемент
 
@@ -422,15 +413,41 @@ namespace XsltConverter.ViewModels
                 }
                 rootEmployees.Add(employeeElement);
             }
-            xmlDocument.Add(rootEmployees);
+            xDocument.Add(rootEmployees);
 
-            using (XmlTextWriter xmlTextWriter = new XmlTextWriter(saveFileDialog.FileName + ".xml", Encoding.UTF8))
+            WriteToXml(xDocument, saveFileDialog.FileName + ".xml");
+
+            //using (XmlTextWriter xmlTextWriter = new XmlTextWriter(saveFileDialog.FileName + ".xml", Encoding.UTF8))
+            //{
+            //    xmlTextWriter.Formatting = Formatting.Indented;
+            //    xmlTextWriter.IndentChar = '\t';
+            //    xmlTextWriter.Indentation = 1;
+            //    xmlDocument.WriteTo(xmlTextWriter);
+            //}
+        }
+
+        /// <summary>
+        /// Запись в XML с табуляцией
+        /// </summary>
+        /// <param name="xDocument"></param>
+        /// <param name="text"></param>
+        public void WriteToXml(XDocument xDocument, string text)
+        {
+            if (string.IsNullOrEmpty(text))
             {
-                xmlTextWriter.Formatting = Formatting.Indented;
-                xmlTextWriter.IndentChar = '\t';
-                xmlTextWriter.Indentation = 1;
-                xmlDocument.WriteTo(xmlTextWriter);
+                MessageBox.Show("Не указан путь или файл",
+                                "Внимание",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Error);
+                return;
             }
+
+            using XmlTextWriter xmlTextWriter = new XmlTextWriter(text, Encoding.UTF8);
+            xmlTextWriter.Formatting = Formatting.Indented;
+            xmlTextWriter.IndentChar = '\t';
+            xmlTextWriter.Indentation = 1;
+
+            xDocument.WriteTo(xmlTextWriter);
         }
 
         /// <summary>
@@ -525,7 +542,9 @@ namespace XsltConverter.ViewModels
 
                             rootObject.AppendChild(itemElem);
 
-                            WriteTextInXml(xmlDocument);
+                            //WriteToXml(xmlDocument, PathAndNameFile);
+
+                            //WriteTextInXml(xmlDocument);
                         }
 
                     }
@@ -547,6 +566,8 @@ namespace XsltConverter.ViewModels
                                 MessageBoxImage.Error);
                 return;
             }
+
+
 
             using XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8);
             xmlTextWriter.Formatting = Formatting.Indented;
