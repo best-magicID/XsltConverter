@@ -451,29 +451,31 @@ namespace XsltConverter.ViewModels
         }
 
         /// <summary>
-        /// Изменить исходный XML файл. 
-        /// Добавление общей суммы
+        /// Изменение исходного XML файла. 
+        /// Добавление общей суммы.
         /// </summary>
         public void ChangeSourceFile()
         {
             if (!string.IsNullOrEmpty(PathAndNameFile))
             {
-                XmlDocument xmlDocument = new XmlDocument();
-                xmlDocument.Load(PathAndNameFile);
+                XDocument xDocument = XDocument.Load(PathAndNameFile);
 
-                XmlElement? rootObject = xmlDocument.DocumentElement;
-
-                if (rootObject != null)
+                var rootNode = xDocument.Element("Pay");
+                if (rootNode != null)
                 {
-                    if (rootObject.Name.ToLower() == "pay")
-                    {
-                        double allamount = ListAllEmployees.Sum(x => x.Amount);
-                        XmlAttribute xmlAttribute = xmlDocument.CreateAttribute(nameof(allamount));
-                        xmlAttribute.Value = allamount.ToString();
-                        rootObject.Attributes.Append(xmlAttribute);
+                    var allAmount = ListAllEmployees.Sum(x => x.Amount).ToString();
 
-                        WriteTextInXml(xmlDocument);
+                    var attr = rootNode.Attribute("allamount");
+                    if (attr != null)
+                    {
+                        attr.Value = allAmount;
                     }
+                    else
+                    {
+                        XAttribute allAmountAttr = new XAttribute("allamount", allAmount);
+                        rootNode.Add(allAmountAttr);
+                    }
+                    xDocument.Save(PathAndNameFile);
                 }
             }
         }
@@ -541,8 +543,6 @@ namespace XsltConverter.ViewModels
                                 MessageBoxImage.Error);
                 return;
             }
-
-
 
             using XmlTextWriter xmlTextWriter = new XmlTextWriter(PathAndNameFile, Encoding.UTF8);
             xmlTextWriter.Formatting = Formatting.Indented;
