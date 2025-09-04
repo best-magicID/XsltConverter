@@ -8,15 +8,12 @@
         xmlns:vm="clr-namespace:XsltConverter.ViewModels"
         
         mc:Ignorable="d" 
+        d:DataContext="{d:DesignInstance Type=vm:MainViewModel}"
         Title="Xslt конвертер" 
         Height="450" 
         Width="900" 
         WindowStartupLocation="CenterScreen">
 
-    <Window.DataContext>
-        <vm:MainViewModel/>
-    </Window.DataContext>
-    
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Margin"

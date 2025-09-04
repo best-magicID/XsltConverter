@@ -13,4 +13,8 @@
     <Content Include="Files\icon.ico" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Windows\" />
+  </ItemGroup>
+
 </Project>
