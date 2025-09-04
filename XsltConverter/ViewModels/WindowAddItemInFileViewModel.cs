@@ -44,6 +44,11 @@ namespace XsltConverter.ViewModels
 
         #region КОНСТРУКТОР
 
+        public WindowAddItemInFileViewModel()
+        {
+            AddItemCommand = new RaiseCommand(AddItemCommand_Execute);
+        }
+
         public WindowAddItemInFileViewModel(List<Month> newListMonths)
         {
             newListMonths.ForEach(x => ListMonths.Add(x));
