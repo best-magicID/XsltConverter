@@ -35,14 +35,8 @@ namespace XsltConverter.ViewModels
         }
         private Employee _NewEmployee = new Employee(string.Empty, string.Empty, 0, Month.january);
 
-        /// <summary>
-        /// Выбранный месяц
-        /// </summary>
-        public Month SelectedMonth { get; set; } = Month.january;
-
 
         public RaiseCommand AddItemCommand { get; set; }
-
 
         public event Action? RequestClose;
 

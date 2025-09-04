@@ -84,7 +84,7 @@
         <ComboBox Grid.Column="1"
                   Grid.Row="3"
                   ItemsSource="{Binding ListMonths}"
-                  SelectedItem="{Binding SelectedMonth}"/>
+                  SelectedItem="{Binding NewEmployee.Month}"/>
 
         <Button Content="Добавить"
                 Name="ButtonAddItem"
