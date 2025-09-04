@@ -7,7 +7,7 @@ using System.Windows;
 using System.Xml;
 using System.Xml.Linq;
 using XsltConverter.Models;
-using XsltConverter.Windows;
+using XsltConverter.Views;
 
 namespace XsltConverter.ViewModels
 {
@@ -464,10 +464,13 @@ namespace XsltConverter.ViewModels
         /// </summary>
         public void AddItemInFile()
         {
-            WindowAddItemInFile windowAddItemInFile = new WindowAddItemInFile(ListMonths);
-            windowAddItemInFile.ShowDialog();
+            WindowAddItemInFileViewModel windowAddItemInFileViewModel = new WindowAddItemInFileViewModel(ListMonths);
 
-            if (!windowAddItemInFile.IsAdd)
+            WindowAddItemInFileView windowAddItemInFileView = new WindowAddItemInFileView();
+            windowAddItemInFileView.DataContext = windowAddItemInFileViewModel;
+            windowAddItemInFileView.ShowDialog();
+
+            if (!windowAddItemInFileViewModel.IsAdd)
             {
                 return;
             }
@@ -480,10 +483,10 @@ namespace XsltConverter.ViewModels
                 if (rootNode != null)
                 {
                     rootNode.Add(new XElement("item",
-                                              new XAttribute("name", windowAddItemInFile.NewEmployee.Name),
-                                              new XAttribute("surname", windowAddItemInFile.NewEmployee.SurName),
-                                              new XAttribute("amount", windowAddItemInFile.NewEmployee.Amount.ToString()),
-                                              new XAttribute("month", windowAddItemInFile.NewEmployee.Month.ToString())));
+                                              new XAttribute("name", windowAddItemInFileViewModel.NewEmployee.Name),
+                                              new XAttribute("surname", windowAddItemInFileViewModel.NewEmployee.SurName),
+                                              new XAttribute("amount", windowAddItemInFileViewModel.NewEmployee.Amount.ToString()),
+                                              new XAttribute("month", windowAddItemInFileViewModel.NewEmployee.Month.ToString())));
 
                     xDocument.Save(PathAndNameFile);
                 }

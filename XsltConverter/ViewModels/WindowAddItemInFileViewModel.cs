@@ -4,13 +4,11 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using XsltConverter.Models;
 
-namespace XsltConverter.Windows
+namespace XsltConverter.ViewModels
 {
-    /// <summary>
-    /// Логика взаимодействия
-    /// </summary>
-    public partial class WindowAddItemInFile : Window, INotifyPropertyChanged
+    public class WindowAddItemInFileViewModel : INotifyPropertyChanged
     {
+
         #region ПОЛЯ И СВОЙСТВА
 
         /// <summary>
@@ -26,7 +24,7 @@ namespace XsltConverter.Windows
         /// <summary>
         /// Новый item
         /// </summary>
-        public Employee NewEmployee 
+        public Employee NewEmployee
         {
             get => _NewEmployee;
             set
@@ -42,20 +40,21 @@ namespace XsltConverter.Windows
         /// </summary>
         public Month SelectedMonth { get; set; } = Month.january;
 
+
+        public RaiseCommand AddItemCommand { get; set; }
+
+
+        public event Action? RequestClose;
+
         #endregion
 
         #region КОНСТРУКТОР
 
-        public WindowAddItemInFile(List<Month> newListMonths)
+        public WindowAddItemInFileViewModel(List<Month> newListMonths)
         {
-            InitializeComponent();
+            newListMonths.ForEach(x => ListMonths.Add(x));
 
-            foreach (Month month in newListMonths) 
-            {
-                ListMonths.Add(month);
-            }
-
-            DataContext = this;
+            AddItemCommand = new RaiseCommand(AddItemCommand_Execute);
         }
 
         #endregion
@@ -72,27 +71,37 @@ namespace XsltConverter.Windows
 
         #region МЕТОДЫ
 
+        private void AddItemCommand_Execute(object parameter)
+        {
+            AddItem();
+        }
+
         /// <summary>
         /// Добавление нового item
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ButtonAddItem_Click(object sender, RoutedEventArgs e)
+        private void AddItem()
         {
             if (NewEmployee.Name != string.Empty && NewEmployee.SurName != string.Empty)
             {
                 IsAdd = true;
-                Close();
+                OnClose();
                 return;
             }
 
-            MessageBox.Show("Введите имя и фамилию для добавления", 
-                            "Внимание", 
-                            MessageBoxButton.OK, 
+            MessageBox.Show("Введите имя и фамилию для добавления",
+                            "Внимание",
+                            MessageBoxButton.OK,
                             MessageBoxImage.Warning);
         }
 
-        #endregion
+        /// <summary>
+        /// Закрытие окна
+        /// </summary>
+        public void OnClose()
+        {
+            RequestClose?.Invoke();
+        }
 
+        #endregion
     }
 }
