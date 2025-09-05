@@ -1,22 +1,12 @@
 ﻿namespace XsltConverter.Models
 {
     /// <summary>
-    /// Класс Работник
+    /// Класс Работник для импорта из XML
     /// </summary>
-    public class Employee 
+    public class Employee : BaseEmployee
     {
         /// <summary>
-        /// Имя работника
-        /// </summary>
-        public string Name { get; set; }
-
-        /// <summary>
-        /// Фамилия работника
-        /// </summary>
-        public string SurName { get; set; }
-
-        /// <summary>
-        /// Сумма работника
+        /// Сумма работника 
         /// </summary>
         public double Amount { get; set; }
 
@@ -25,10 +15,10 @@
         /// </summary>
         public Month Month { get; set; } 
 
+
         public Employee(string newName, string newSurName, double newAmount, Month newMonth) 
+            : base(newName, newSurName)
         {
-            Name = newName;
-            SurName = newSurName;
             Amount = newAmount;
             Month = newMonth;
         }

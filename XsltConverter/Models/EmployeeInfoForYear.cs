@@ -1,15 +1,12 @@
 ﻿using System.Collections.ObjectModel;
-//using System.ComponentModel;
-//using System.Runtime.CompilerServices;
 
 namespace XsltConverter.Models
 {
-    public class EmployeeInfoForYear /*: INotifyPropertyChanged*/
+    /// <summary>
+    /// Класс Работник с распределением по месяцам
+    /// </summary>
+    public class EmployeeInfoForYear : BaseEmployee
     {
-        public string Name { get; set; }
-
-        public string SurName { get; set; }
-
         public double AmountForJanuary { get; set; } 
         public ObservableCollection<Employee> ListForJanuary { get; set; } = [];
 
@@ -53,20 +50,10 @@ namespace XsltConverter.Models
 
 
         public EmployeeInfoForYear(string newName, string newSurName)
+            : base(newName, newSurName)
         {
-            Name = newName;
-            SurName = newSurName; 
+
         }
-
-        //#region ОБНОВЛЕНИЕ UI
-
-        //public event PropertyChangedEventHandler? PropertyChanged;
-        //public void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        //}
-
-        //#endregion
 
         /// <summary>
         /// Получение списка со всеми месяцами сотрудника
